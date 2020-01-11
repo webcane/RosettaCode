@@ -8,38 +8,23 @@ import java.util.Locale;
 public class Chowla {
 
     public static void main(String[] args) {
-        // task 1
-        int limit = 37;
-        for (int i = 1; i <= limit; i++) {
-            System.out.printf("chowla(%d) = %d%n", i, chowla(i));
+        int[] chowlaNumbers = findChowlaNumbers(37);
+        for (int i = 0; i < chowlaNumbers.length; i++) {
+            System.out.printf("chowla(%d) = %d%n", (i + 1), chowlaNumbers[i]);
         }
         System.out.println();
 
-        // task 2
-        int n, count = 0, power = 100;
-        limit = 10000000;
-        for (n = 2; n <= limit; n++) {
-            if (chowla(n) == 0) count++;
-            if (n % power == 0) {
-                System.out.printf(Locale.US, "There is %,d primes up to %,d%n", count, power);
-                power *= 10;
-            }
+        int[][] primes = countPrimes(100, 10_000_000);
+        for (int i = 0; i < primes.length; i++) {
+            System.out.printf(Locale.US, "There is %,d primes up to %,d%n", primes[i][1], primes[i][0]);
         }
         System.out.println();
 
-        // task 3
-        count = 0;
-        limit = 35000000;
-        int k = 2, kk = 3, p;
-        while ((p = k * kk) < limit) {
-            if (chowla(p) == p - 1) {
-                System.out.printf("%d is a perfect number%n", p);
-                count++;
-            }
-            k = kk + 1;
-            kk += k;
+        int[] perfectNumbers = findPerfectNumbers(35_000_000);
+        for (int i = 0; i < perfectNumbers.length; i++) {
+            System.out.printf("%d is a perfect number%n", perfectNumbers[i]);
         }
-        System.out.printf(Locale.US, "There are %d perfect numbers < %,d%n", count, limit);
+        System.out.printf(Locale.US, "There are %d perfect numbers < %,d%n", perfectNumbers.length, 35_000_000);
     }
 
     public static int chowla(int n) {
@@ -48,5 +33,60 @@ public class Chowla {
         for (int i = 2, j; i * i <= n; i++)
             if (n % i == 0) sum += i + (i == (j = n / i) ? 0 : j);
         return sum;
+    }
+
+    protected static int[][] countPrimes(int power, int limit) {
+        int count = 0;
+        int[][] num = new int[countMultiplicity(limit, power)][2];
+        for (int n = 2, i = 0; n <= limit; n++) {
+            if (chowla(n) == 0) count++;
+            if (n % power == 0) {
+                num[i][0] = power;
+                num[i][1] = count;
+                i++;
+                power *= 10;
+            }
+        }
+        return num;
+    }
+
+    protected static int countMultiplicity(int limit, int start) {
+        int count = 0;
+        int cur = limit;
+        while (cur >= start) {
+            count++;
+            cur = cur / 10;
+        }
+        return count;
+    }
+
+    protected static int[] findChowlaNumbers(int limit) {
+        int[] num = new int[limit];
+        for (int i = 0; i < limit; i++) {
+            num[i] = chowla(i + 1);
+        }
+        return num;
+    }
+
+    protected static int[] findPerfectNumbers(int limit) {
+        int count = 0;
+        int[] num = new int[count];
+
+        int k = 2, kk = 3, p;
+        while ((p = k * kk) < limit) {
+            if (chowla(p) == p - 1) {
+                num = increaseArr(num);
+                num[count++] = p;
+            }
+            k = kk + 1;
+            kk += k;
+        }
+        return num;
+    }
+
+    private static int[] increaseArr(int[] arr) {
+        int[] tmp = new int[arr.length + 1];
+        System.arraycopy(arr, 0, tmp, 0, arr.length);
+        return tmp;
     }
 }
